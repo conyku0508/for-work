@@ -14,7 +14,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .truncate-custom { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        /* 權限視覺鎖 */
         .admin-only { display: none; }
         body.is-admin .admin-only { display: block; }
         body.is-admin .admin-only-flex { display: flex; }
@@ -33,14 +32,8 @@
         <div class="bg-white p-6 rounded-xl shadow-2xl w-96 border">
             <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center gap-2">🔑 管理員登入</h2>
             <form id="loginForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Email</label>
-                    <input type="email" id="loginEmail" class="w-full px-3 py-2 border rounded text-sm focus:border-blue-500 outline-none" required>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">密碼</label>
-                    <input type="password" id="loginPwd" class="w-full px-3 py-2 border rounded text-sm focus:border-blue-500 outline-none" required>
-                </div>
+                <div><label class="block text-xs text-gray-500 mb-1">Email</label><input type="email" id="loginEmail" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required></div>
+                <div><label class="block text-xs text-gray-500 mb-1">密碼</label><input type="password" id="loginPwd" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required></div>
                 <div class="flex gap-2 pt-2">
                     <button type="button" onclick="document.getElementById('loginModal').classList.add('hide')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2 rounded transition text-sm">取消</button>
                     <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition font-bold text-sm">登入解鎖</button>
@@ -51,32 +44,21 @@
 
     <aside class="w-72 bg-slate-800 text-white flex flex-col h-full shadow-lg z-10">
         <div class="p-4 border-b border-slate-700">
-            <div class="flex justify-between items-center mb-3">
-                <h1 class="text-xl font-bold tracking-wider">JS 專案管理</h1>
-                <span id="roleBadge" class="text-[10px] px-2 py-1 bg-slate-600 rounded text-slate-300">👁️ 唯讀模式</span>
-            </div>
-            <form id="addProjectForm" class="admin-only-flex gap-2 hidden">
-                <input type="text" id="newProjectName" placeholder="新增客戶/專案" class="w-full px-2 py-1.5 rounded text-gray-900 text-sm focus:ring-2 focus:ring-blue-500 outline-none" required>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded transition font-bold">+</button>
-            </form>
+            <div class="flex justify-between items-center mb-3"><h1 class="text-xl font-bold tracking-wider">JS 專案管理</h1><span id="roleBadge" class="text-[10px] px-2 py-1 bg-slate-600 rounded text-slate-300">👁️ 唯讀模式</span></div>
+            <form id="addProjectForm" class="admin-only-flex gap-2 hidden"><input type="text" id="newProjectName" placeholder="新增客戶/專案" class="w-full px-2 py-1.5 rounded text-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500" required><button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded transition font-bold">+</button></form>
         </div>
-
         <div class="flex text-sm border-b border-slate-700">
             <button id="tabActive" class="flex-1 py-2 text-center bg-slate-700 font-bold" onclick="window.switchTab('active')">執行中</button>
             <button id="tabArchived" class="flex-1 py-2 text-center text-slate-400 hover:text-white" onclick="window.switchTab('archived')">已封存</button>
         </div>
-
         <div class="flex-1 overflow-y-auto p-2" id="projectList"></div>
-
         <div class="p-4 border-t border-slate-700 flex flex-col gap-2 bg-slate-800/50">
             <button onclick="window.toggleLoginState()" id="loginBtn" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs py-2 rounded border border-slate-600 transition mb-2">🔑 登入編輯模式</button>
             <button onclick="window.batchExportToExcel()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-sm py-2 rounded shadow transition font-bold flex justify-center items-center gap-2">📊 批次匯出 Excel</button>
-            
             <div class="admin-only hidden border-t border-slate-600 mt-2 pt-2">
                 <button onclick="document.getElementById('importFile').click()" class="w-full text-xs bg-purple-700 hover:bg-purple-600 py-1.5 rounded transition text-white font-bold">📂 舊資料搬家 (匯入 JSON)</button>
                 <input type="file" id="importFile" class="hide" accept=".json" onchange="window.importJSON(event)">
             </div>
-            
             <button onclick="window.exportJSON()" class="w-full text-[10px] bg-slate-700 hover:bg-slate-600 py-1.5 rounded transition text-slate-400 mt-1">💾 下載雲端備份</button>
         </div>
     </aside>
@@ -92,12 +74,7 @@
 
         <div id="projectDetails" class="hide p-6 md:p-8 max-w-7xl mx-auto w-full">
             <header class="mb-6 flex justify-between items-start border-b pb-4">
-                <div>
-                    <div class="flex items-center gap-3">
-                        <h2 id="displayProjectName" class="text-3xl font-bold text-gray-800">專案名稱</h2>
-                        <span id="projectStatusBadge" class="px-2 py-1 text-xs rounded font-bold"></span>
-                    </div>
-                </div>
+                <div class="flex items-center gap-3"><h2 id="displayProjectName" class="text-3xl font-bold text-gray-800">專案名稱</h2><span id="projectStatusBadge" class="px-2 py-1 text-xs rounded font-bold"></span></div>
                 <div class="flex gap-2">
                     <button onclick="window.exportSingleProjectToExcel()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded text-sm font-bold transition">匯出單案</button>
                     <div class="relative group admin-only hidden">
@@ -114,77 +91,30 @@
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 <div class="xl:col-span-1 space-y-6 flex flex-col">
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 admin-only hidden" id="planFormContainer">
-                        <div class="flex justify-between items-center mb-3 border-l-4 border-blue-500 pl-2">
-                            <h3 id="planFormTitle" class="text-lg font-bold text-gray-700">新增採購方案</h3>
-                            <button id="cancelEditPlanBtn" type="button" onclick="window.cancelEditPlanMode()" class="hide text-xs text-gray-400 underline">取消</button>
-                        </div>
+                        <div class="flex justify-between items-center mb-3 border-l-4 border-blue-500 pl-2"><h3 id="planFormTitle" class="text-lg font-bold text-gray-700">新增採購方案</h3><button id="cancelEditPlanBtn" type="button" onclick="window.cancelEditPlanMode()" class="hide text-xs text-gray-400 underline">取消</button></div>
                         <form id="addPlanForm" class="space-y-3">
-                            <input type="text" id="planName" list="planOptions" placeholder="方案名稱" class="w-full px-3 py-2 border rounded text-sm focus:border-blue-500 outline-none" required>
-                            <datalist id="planOptions">
-                                <option value="A方案 (16網)"><option value="B方案 (17網)"><option value="C方案 (19網)"><option value="D方案 (21網)">
-                                <option value="網路影音新聞聯播 (出機)"><option value="傳統媒體廣編稿 (A級)">
-                            </datalist>
-                            <input type="number" id="planBudget" placeholder="總預算" class="w-full px-3 py-2 border rounded text-sm focus:border-blue-500 outline-none" required>
-                            <input type="text" id="planRemark" placeholder="🔒 內部備註 (不匯出)" class="w-full px-3 py-2 border border-purple-200 bg-purple-50 rounded text-sm focus:border-purple-500 outline-none">
+                            <input type="text" id="planName" list="planOptions" placeholder="方案名稱" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required><datalist id="planOptions"><option value="A方案 (16網)"><option value="B方案 (17網)"><option value="C方案 (19網)"><option value="D方案 (21網)"></datalist>
+                            <input type="number" id="planBudget" placeholder="總預算" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required>
+                            <input type="text" id="planRemark" placeholder="🔒 內部備註 (不匯出)" class="w-full px-3 py-2 border border-purple-200 bg-purple-50 rounded text-sm outline-none">
                             <button id="submitPlanBtn" type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded transition font-bold">建立方案</button>
                         </form>
                     </div>
-
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col flex-1">
-                        <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-emerald-500 pl-2">方案餘額總覽</h3>
-                        <div id="planWalletsList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1"></div>
-                        <div id="projectSummary" class="mt-4 border-t-2 border-gray-100 pt-3 hide"></div>
-                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col flex-1"><h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-emerald-500 pl-2">方案餘額總覽</h3><div id="planWalletsList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1"></div><div id="projectSummary" class="mt-4 border-t-2 border-gray-100 pt-3 hide"></div></div>
                 </div>
 
                 <div class="xl:col-span-2 space-y-6">
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 admin-only hidden" id="txFormContainer">
-                        <div class="flex justify-between items-center mb-3 border-l-4 border-red-500 pl-2">
-                            <h3 id="txFormTitle" class="text-lg font-bold text-gray-700">新增執行紀錄</h3>
-                            <button id="cancelEditBtn" type="button" onclick="window.cancelEditMode()" class="hide text-xs text-gray-400 underline">取消</button>
-                        </div>
+                        <div class="flex justify-between items-center mb-3 border-l-4 border-red-500 pl-2"><h3 id="txFormTitle" class="text-lg font-bold text-gray-700">新增執行紀錄</h3><button id="cancelEditBtn" type="button" onclick="window.cancelEditMode()" class="hide text-xs text-gray-400 underline">取消</button></div>
                         <form id="addTransactionForm" class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-3 rounded border">
-                                <select id="txPlanId" class="w-full px-3 py-2 border rounded text-sm bg-white outline-none" required></select>
-                                <select id="txType" class="w-full px-3 py-2 border rounded text-sm bg-white outline-none" onchange="window.toggleTypeFields()">
-                                    <option value="deduction">一般扣款 (水軍/廣告)</option>
-                                    <option value="press_release">新聞稿發布 (含連結)</option>
-                                </select>
-                                <input type="text" id="txDescription" placeholder="主題或項目名稱" class="w-full px-3 py-2 border rounded text-sm outline-none" required>
-                            </div>
-                            
-                            <div id="deductionFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-orange-50 p-3 rounded border border-orange-100">
-                                <input type="text" id="deductionPeriod" placeholder="廣告走期 / 時間 (例: 2/3-2/9)" class="w-full px-3 py-2 border rounded text-sm outline-none">
-                                <input type="text" id="deductionNotes" placeholder="詳細細節備註" class="w-full px-3 py-2 border rounded text-sm outline-none">
-                            </div>
-
-                            <div id="prFields" class="hide grid grid-cols-1 md:grid-cols-2 gap-4 bg-blue-50 p-3 rounded border border-blue-100">
-                                <input type="date" id="prDate" class="w-full px-3 py-2 border rounded text-sm outline-none">
-                                <input type="text" id="prNotes" placeholder="新聞稿備註" class="w-full px-3 py-2 border rounded text-sm outline-none">
-                                <input type="url" id="prLink" placeholder="新聞連結 https://..." class="w-full px-3 py-2 border rounded text-sm md:col-span-2 outline-none">
-                                <input type="url" id="prCloud" placeholder="雲端空間 https://..." class="w-full px-3 py-2 border rounded text-sm md:col-span-2 outline-none">
-                            </div>
-
-                            <div class="flex items-end gap-4">
-                                <div class="w-1/3"><label class="text-[10px] text-red-500 font-bold ml-1">扣款金額</label><input type="number" id="txAmount" value="0" min="0" class="w-full px-3 py-2 border-2 border-red-200 rounded text-sm outline-none" required></div>
-                                <button id="submitTxBtn" type="submit" class="w-2/3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded transition">登記並扣款</button>
-                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-3 rounded border"><select id="txPlanId" class="w-full px-3 py-2 border rounded text-sm bg-white outline-none" required></select><select id="txType" class="w-full px-3 py-2 border rounded text-sm bg-white outline-none" onchange="window.toggleTypeFields()"><option value="deduction">一般扣款</option><option value="press_release">新聞稿發布</option></select><input type="text" id="txDescription" placeholder="主題或項目名稱" class="w-full px-3 py-2 border rounded text-sm outline-none" required></div>
+                            <div id="deductionFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-orange-50 p-3 rounded border border-orange-100"><input type="text" id="deductionPeriod" placeholder="廣告走期 / 時間" class="w-full px-3 py-2 border rounded text-sm outline-none"><input type="text" id="deductionNotes" placeholder="詳細細節備註" class="w-full px-3 py-2 border rounded text-sm outline-none"></div>
+                            <div id="prFields" class="hide grid grid-cols-1 md:grid-cols-2 gap-4 bg-blue-50 p-3 rounded border border-blue-100"><input type="date" id="prDate" class="w-full px-3 py-2 border rounded text-sm outline-none"><input type="text" id="prNotes" placeholder="新聞稿備註" class="w-full px-3 py-2 border rounded text-sm outline-none"><input type="url" id="prLink" placeholder="新聞連結" class="w-full px-3 py-2 border rounded text-sm md:col-span-2 outline-none"><input type="url" id="prCloud" placeholder="雲端空間" class="w-full px-3 py-2 border rounded text-sm md:col-span-2 outline-none"></div>
+                            <div class="flex items-end gap-4"><div class="w-1/3"><label class="text-[10px] text-red-500 font-bold ml-1">扣款金額</label><input type="number" id="txAmount" value="0" min="0" class="w-full px-3 py-2 border-2 border-red-200 rounded text-sm outline-none" required></div><button id="submitTxBtn" type="submit" class="w-2/3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded transition">登記並扣款</button></div>
                         </form>
                     </div>
-
                     <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
                         <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-indigo-500 pl-2">執行帳目明細</h3>
-                        <div class="overflow-x-auto max-h-[500px]">
-                            <table class="min-w-full text-sm text-left text-gray-500">
-                                <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b sticky top-0">
-                                    <tr>
-                                        <th class="px-3 py-3">方案</th><th class="px-3 py-3">類型</th><th class="px-3 py-3">說明</th><th class="px-3 py-3">詳細資訊</th><th class="px-3 py-3 text-right">金額</th><th class="px-3 py-3 text-center admin-only-table-cell hidden">操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="transactionList" class="divide-y"></tbody>
-                            </table>
-                            <div id="noTransactionsMsg" class="text-center py-10 text-gray-400 hide">目前尚無任何紀錄</div>
-                        </div>
+                        <div class="overflow-x-auto max-h-[500px]"><table class="min-w-full text-sm text-left text-gray-500"><thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b sticky top-0"><tr><th class="px-3 py-3">方案</th><th class="px-3 py-3">類型</th><th class="px-3 py-3">說明</th><th class="px-3 py-3">詳細資訊</th><th class="px-3 py-3 text-right">金額</th><th class="px-3 py-3 text-center admin-only-table-cell hidden">操作</th></tr></thead><tbody id="transactionList" class="divide-y"></tbody></table><div id="noTransactionsMsg" class="text-center py-10 text-gray-400 hide">目前尚無任何紀錄</div></div>
                     </div>
                 </div>
             </div>
@@ -217,44 +147,49 @@ measurementId: "G-G4JJP7X90J"
 
         let appData = { projects: [], currentProjectId: null, currentViewTab: 'active' };
         let currentUserEmail = null;
-        let editingTxId = null; 
-        let editingPlanId = null;
+        let editingTxId = null; let editingPlanId = null;
         let selectedProjectsForExport = new Set(); 
+
+        // --- 修正核心：建立跨越 Module 牆壁的專案選擇函數 ---
+        window.selectProject = (id) => {
+            appData.currentProjectId = id;
+            window.cancelEditMode();
+            window.cancelEditPlanMode();
+            render();
+        };
 
         async function saveToCloud() {
             if (!currentUserEmail) return;
-            try {
-                await setDoc(DB_DOC_REF, { projects: appData.projects });
-            } catch (error) { console.error("Save Fail:", error); alert("存檔失敗，權限不足！"); }
+            try { await setDoc(DB_DOC_REF, { projects: appData.projects }); } 
+            catch (error) { console.error(error); alert("存檔失敗！"); }
         }
 
         onSnapshot(DB_DOC_REF, (snap) => {
             document.getElementById('loader').classList.add('hide');
             if (snap.exists()) { appData.projects = snap.data().projects || []; render(); }
             else { render(); }
-        }, () => { document.getElementById('loader').classList.add('hide'); });
+        }, () => document.getElementById('loader').classList.add('hide'));
 
         onAuthStateChanged(auth, (user) => {
             currentUserEmail = user ? user.email : null;
             if (user) document.body.classList.add('is-admin');
-            else document.body.classList.remove('is-admin');
+            else { document.body.classList.remove('is-admin'); cancelEditMode(); cancelEditPlanMode(); }
             render();
         });
 
-        // --- 全域介面功能 ---
         window.toggleLoginState = () => {
-            if (currentUserEmail) signOut(auth).then(() => alert("已切換為唯讀。"));
+            if (currentUserEmail) signOut(auth).then(() => alert("已登出。"));
             else document.getElementById('loginModal').classList.remove('hide');
         };
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPwd').value)
-                .then(() => { document.getElementById('loginModal').classList.add('hide'); })
+                .then(() => document.getElementById('loginModal').classList.add('hide'))
                 .catch((err) => alert("登入失敗：" + err.message));
         });
 
-        window.switchTab = (tab) => { appData.currentViewTab = tab; appData.currentProjectId = null; window.cancelEditMode(); window.cancelEditPlanMode(); render(); };
+        window.switchTab = (tab) => { appData.currentViewTab = tab; appData.currentProjectId = null; render(); };
         window.toggleTypeFields = () => {
             const type = document.getElementById('txType').value;
             if(type==='press_release'){ document.getElementById('prFields').classList.remove('hide'); document.getElementById('deductionFields').classList.add('hide'); }
@@ -262,34 +197,24 @@ measurementId: "G-G4JJP7X90J"
         };
         window.toggleProjectSelection = (e, id) => { e.stopPropagation(); if(e.target.checked) selectedProjectsForExport.add(id); else selectedProjectsForExport.delete(id); };
 
-        // --- CRUD 操作 ---
         document.getElementById('addProjectForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const id = Date.now().toString(36);
+            const id = "p_" + Date.now().toString(36);
             appData.projects.push({ id, name: document.getElementById('newProjectName').value.trim(), status: 'active', plans: [], transactions: [] });
             appData.currentProjectId = id;
             e.target.reset(); saveToCloud();
         });
 
-        window.renameProject = () => { 
-            const p = appData.projects.find(x => x.id === appData.currentProjectId);
-            const n = prompt('修改名稱：', p.name); if(n) { p.name = n; saveToCloud(); }
-        };
-
-        window.toggleProjectStatus = () => {
-            const p = appData.projects.find(x => x.id === appData.currentProjectId);
-            p.status = p.status === 'archived' ? 'active' : 'archived';
-            appData.currentProjectId = null; saveToCloud();
-        };
-
-        window.deleteProject = () => { if(confirm('永久刪除專案？')) { appData.projects = appData.projects.filter(x => x.id !== appData.currentProjectId); appData.currentProjectId = null; saveToCloud(); } };
+        window.renameProject = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const n = prompt('新名稱', p.name); if(n){ p.name = n; saveToCloud(); } };
+        window.toggleProjectStatus = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.status = (p.status||'active')==='active'?'archived':'active'; appData.currentProjectId = null; saveToCloud(); };
+        window.deleteProject = () => { if(confirm('永久刪除？')){ appData.projects = appData.projects.filter(x => x.id !== appData.currentProjectId); appData.currentProjectId = null; saveToCloud(); } };
 
         document.getElementById('addPlanForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const p = appData.projects.find(x => x.id === appData.currentProjectId);
             const data = { name: document.getElementById('planName').value.trim(), budget: Number(document.getElementById('planBudget').value), internalRemark: document.getElementById('planRemark').value.trim() };
             if(editingPlanId) { const i = p.plans.findIndex(x => x.id === editingPlanId); p.plans[i] = {...p.plans[i], ...data}; window.cancelEditPlanMode(); }
-            else { data.id = Date.now().toString(36); p.plans.push(data); e.target.reset(); }
+            else { data.id = "pl_" + Date.now().toString(36); p.plans.push(data); e.target.reset(); }
             saveToCloud();
         });
 
@@ -300,123 +225,89 @@ measurementId: "G-G4JJP7X90J"
             const data = { planId: document.getElementById('txPlanId').value, type: document.getElementById('txType').value, description: document.getElementById('txDescription').value.trim(), amount: Number(document.getElementById('txAmount').value) };
             if(isPR) { data.prDate = document.getElementById('prDate').value; data.prNotes = document.getElementById('prNotes').value; data.prLink = document.getElementById('prLink').value; data.prCloud = document.getElementById('prCloud').value; }
             else { data.deductionPeriod = document.getElementById('deductionPeriod').value; data.deductionNotes = document.getElementById('deductionNotes').value; }
-            
             if(editingTxId) { const i = p.transactions.findIndex(t => t.id === editingTxId); p.transactions[i] = {...p.transactions[i], ...data}; window.cancelEditMode(); }
-            else { data.id = Date.now().toString(36); data.createdAt = new Date().toISOString(); p.transactions.push(data); e.target.reset(); window.toggleTypeFields(); }
+            else { data.id = "tx_" + Date.now().toString(36); data.createdAt = new Date().toISOString(); p.transactions.push(data); e.target.reset(); window.toggleTypeFields(); }
             saveToCloud();
         });
 
-        window.deletePlan = (id) => { if(confirm('刪除方案？相關扣款會失去對應。')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.plans = p.plans.filter(x => x.id !== id); saveToCloud(); } };
-        window.deleteTransaction = (id) => { if(confirm('刪除紀錄？')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.transactions = p.transactions.filter(x => x.id !== id); saveToCloud(); } };
-
-        window.startEditPlan = (id) => {
-            const p = appData.projects.find(x => x.id === appData.currentProjectId); const plan = p.plans.find(x => x.id === id);
-            editingPlanId = id; document.getElementById('planFormTitle').textContent = '編輯方案內容'; document.getElementById('planFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditPlanBtn').classList.remove('hide');
-            document.getElementById('planName').value = plan.name; document.getElementById('planBudget').value = plan.budget; document.getElementById('planRemark').value = plan.internalRemark || '';
-        };
+        window.deletePlan = (id) => { if(confirm('刪除方案？')){ const p = appData.projects.find(x => x.id === appData.currentProjectId); p.plans = p.plans.filter(x => x.id !== id); saveToCloud(); } };
+        window.deleteTransaction = (id) => { if(confirm('刪除紀錄？')){ const p = appData.projects.find(x => x.id === appData.currentProjectId); p.transactions = p.transactions.filter(x => x.id !== id); saveToCloud(); } };
+        window.startEditPlan = (id) => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const pl = p.plans.find(x => x.id === id); editingPlanId = id; document.getElementById('planFormTitle').textContent = '編輯方案'; document.getElementById('planFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditPlanBtn').classList.remove('hide'); document.getElementById('planName').value = pl.name; document.getElementById('planBudget').value = pl.budget; document.getElementById('planRemark').value = pl.internalRemark || ''; };
         window.cancelEditPlanMode = () => { editingPlanId = null; document.getElementById('addPlanForm').reset(); document.getElementById('planFormTitle').textContent = '新增採購方案'; document.getElementById('planFormContainer').classList.remove('bg-yellow-50'); document.getElementById('cancelEditPlanBtn').classList.add('hide'); };
-
-        window.startEditTransaction = (id) => {
-            const p = appData.projects.find(x => x.id === appData.currentProjectId); const tx = p.transactions.find(x => x.id === id);
-            editingTxId = id; document.getElementById('txFormTitle').textContent = '編輯紀錄'; document.getElementById('txFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditBtn').classList.remove('hide');
-            document.getElementById('txPlanId').value = tx.planId; document.getElementById('txType').value = tx.type; document.getElementById('txDescription').value = tx.description; document.getElementById('txAmount').value = tx.amount;
-            document.getElementById('prDate').value = tx.prDate || ''; document.getElementById('prNotes').value = tx.prNotes || ''; document.getElementById('prLink').value = tx.prLink || ''; document.getElementById('prCloud').value = tx.prCloud || '';
-            document.getElementById('deductionPeriod').value = tx.deductionPeriod || ''; document.getElementById('deductionNotes').value = tx.deductionNotes || '';
-            window.toggleTypeFields();
-        };
+        window.startEditTransaction = (id) => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const tx = p.transactions.find(x => x.id === id); editingTxId = id; document.getElementById('txFormTitle').textContent = '編輯紀錄'; document.getElementById('txFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditBtn').classList.remove('hide'); document.getElementById('txPlanId').value = tx.planId; document.getElementById('txType').value = tx.type; document.getElementById('txDescription').value = tx.description; document.getElementById('txAmount').value = tx.amount; document.getElementById('prDate').value = tx.prDate || ''; document.getElementById('prNotes').value = tx.prNotes || ''; document.getElementById('prLink').value = tx.prLink || ''; document.getElementById('prCloud').value = tx.prCloud || ''; document.getElementById('deductionPeriod').value = tx.deductionPeriod || ''; document.getElementById('deductionNotes').value = tx.deductionNotes || ''; window.toggleTypeFields(); };
         window.cancelEditMode = () => { editingTxId = null; document.getElementById('addTransactionForm').reset(); document.getElementById('txFormTitle').textContent = '新增執行紀錄'; document.getElementById('txFormContainer').classList.remove('bg-yellow-50'); document.getElementById('cancelEditBtn').classList.add('hide'); window.toggleTypeFields(); };
 
-        // --- 核心渲染函數 ---
         function render() {
-            const isAdmin = currentUserEmail !== null;
-            document.getElementById('roleBadge').innerHTML = isAdmin ? '👑 管理員' : '👁️ 唯讀模式';
-            document.getElementById('roleBadge').className = `text-[10px] px-2 py-1 rounded text-white font-bold ${isAdmin ? 'bg-yellow-500' : 'bg-slate-600'}`;
-
-            const listEl = document.getElementById('projectList');
-            listEl.innerHTML = '';
+            const isAdmin = !!currentUserEmail;
+            const listEl = document.getElementById('projectList'); listEl.innerHTML = '';
             const filtered = appData.projects.filter(p => (p.status || 'active') === appData.currentViewTab);
-            
-            if (filtered.length === 0) listEl.innerHTML = `<p class="text-gray-500 text-xs p-4 text-center">無專案資料</p>`;
+            if(filtered.length === 0) listEl.innerHTML = `<p class="text-gray-500 text-xs p-4 text-center">無專案資料</p>`;
             else {
-                filtered.forEach(proj => {
-                    const isCur = appData.currentProjectId === proj.id;
-                    const isChecked = selectedProjectsForExport.has(proj.id) ? 'checked' : '';
+                filtered.forEach(p => {
+                    const isCur = appData.currentProjectId === p.id;
+                    const isChecked = selectedProjectsForExport.has(p.id) ? 'checked' : '';
                     listEl.innerHTML += `
-                        <div class="flex items-center px-2 py-1.5 mb-1 rounded transition ${isCur ? 'bg-blue-600' : 'hover:bg-slate-700'} cursor-pointer" onclick="appData.currentProjectId = '${proj.id}'; window.cancelEditMode(); window.cancelEditPlanMode(); render();">
-                            <input type="checkbox" class="mr-2 w-4 h-4 cursor-pointer" ${isChecked} onclick="window.toggleProjectSelection(event, '${proj.id}')">
-                            <span class="text-sm truncate flex-1 ${isCur ? 'text-white font-bold' : 'text-slate-300'}">${proj.name}</span>
+                        <div class="flex items-center px-2 py-1.5 mb-1 rounded transition ${isCur ? 'bg-blue-600' : 'hover:bg-slate-700'} cursor-pointer" onclick="window.selectProject('${p.id}')">
+                            <input type="checkbox" class="mr-2 w-4 h-4 cursor-pointer" ${isChecked} onclick="window.toggleProjectSelection(event, '${p.id}')">
+                            <span class="text-sm truncate flex-1 ${isCur ? 'text-white font-bold' : 'text-slate-300'}">${p.name}</span>
                         </div>`;
                 });
             }
-            renderProjectDetails();
+            renderDetails();
         }
 
-        function renderProjectDetails() {
-            const project = appData.projects.find(p => p.id === appData.currentProjectId);
-            const noSel = document.getElementById('noProjectSelected');
-            const det = document.getElementById('projectDetails');
-            if (!project) { noSel.classList.remove('hide'); det.classList.add('hide'); return; }
+        function renderDetails() {
+            const p = appData.projects.find(x => x.id === appData.currentProjectId);
+            const noSel = document.getElementById('noProjectSelected'); const det = document.getElementById('projectDetails');
+            if(!p){ noSel.classList.remove('hide'); det.classList.add('hide'); return; }
             noSel.classList.add('hide'); det.classList.remove('hide');
+            document.getElementById('displayProjectName').textContent = p.name;
+            const badge = document.getElementById('projectStatusBadge'); const toggle = document.getElementById('toggleStatusBtn');
+            const isActive = (p.status||'active')==='active'; badge.textContent = isActive?'執行中':'已封存';
+            badge.className = `px-2 py-1 text-xs rounded ${isActive?'bg-blue-100 text-blue-800':'bg-gray-200 text-gray-600'}`;
+            toggle.textContent = isActive?'📦 封存專案':'🔓 解除封存';
 
-            document.getElementById('displayProjectName').textContent = project.name;
-            const badge = document.getElementById('projectStatusBadge');
-            const toggle = document.getElementById('toggleStatusBtn');
-            const isActive = (project.status || 'active') === 'active';
-            badge.textContent = isActive ? '執行中' : '已封存';
-            badge.className = `px-2 py-1 text-xs rounded ${isActive ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-600'}`;
-            toggle.textContent = isActive ? '📦 封存專案' : '🔓 解除封存';
-
-            const wallets = document.getElementById('planWalletsList');
-            const select = document.getElementById('txPlanId');
-            const summary = document.getElementById('projectSummary');
-            wallets.innerHTML = ''; select.innerHTML = '<option value="" disabled selected>選擇扣款方案...</option>';
-
-            let tBudget = 0, tSpent = 0, tBalance = 0;
-            if (project.plans.length === 0) summary.classList.add('hide'); else summary.classList.remove('hide');
-
-            project.plans.forEach(plan => {
-                const fin = calculatePlanFinance(project, plan.id);
-                tBudget += fin.budget; tSpent += fin.spent; tBalance += fin.balance;
-                const isEx = fin.balance <= 0;
-                const isAdmin = currentUserEmail !== null;
-                const remark = (isAdmin && plan.internalRemark) ? `<div class="text-[10px] text-purple-500 mt-1 flex gap-1 items-center">🔒 ${plan.internalRemark}</div>` : '';
-                
+            const wallets = document.getElementById('planWalletsList'); const select = document.getElementById('txPlanId'); const summary = document.getElementById('projectSummary');
+            wallets.innerHTML = ''; select.innerHTML = '<option value="" disabled selected>選擇方案...</option>';
+            let tB=0, tS=0, tL=0;
+            if(p.plans.length===0) summary.classList.add('hide'); else summary.classList.remove('hide');
+            p.plans.forEach(pl => {
+                const f = (function(p, plId){
+                    const plan = p.plans.find(x => x.id === plId);
+                    const spent = p.transactions.filter(tx => tx.planId === plId).reduce((s, tx) => s + Number(tx.amount || 0), 0);
+                    return { budget: plan.budget, spent, balance: plan.budget - spent };
+                })(p, pl.id);
+                tB+=f.budget; tS+=f.spent; tL+=f.balance;
+                const isEx = f.balance<=0; const isAdmin = !!currentUserEmail;
+                const remark = (isAdmin && pl.internalRemark) ? `<div class="text-[10px] text-purple-500 mt-1 flex gap-1 items-center">🔒 ${pl.internalRemark}</div>` : '';
                 wallets.innerHTML += `
-                    <div class="border rounded-lg p-3 relative group transition ${editingPlanId===plan.id?'ring-2 ring-yellow-400 bg-yellow-50':(isEx?'bg-gray-100 opacity-80':'bg-white shadow-sm')}">
+                    <div class="border rounded-lg p-3 relative group transition ${editingPlanId===pl.id?'ring-2 ring-yellow-400 bg-yellow-50':(isEx?'bg-gray-100 opacity-80':'bg-white shadow-sm')}">
                         <div class="flex justify-between items-start mb-1">
-                            <div class="flex-1 pr-10">
-                                <div class="font-bold truncate-custom text-sm ${isEx?'text-gray-400':'text-gray-700'}">${plan.name} ${isEx?'(完)':''}</div>
-                                ${remark}
-                            </div>
+                            <div class="flex-1 pr-10"><div class="font-bold truncate-custom text-sm ${isEx?'text-gray-400':'text-gray-700'}">${pl.name} ${isEx?'(完)':''}</div>${remark}</div>
                             <div class="absolute top-2 right-2 admin-only-flex hidden gap-2 bg-white/90 p-1 rounded shadow-sm group-hover:flex">
-                                <button onclick="window.startEditPlan('${plan.id}')" class="text-xs">✏️</button><button onclick="window.deletePlan('${plan.id}')" class="text-xs">🗑️</button>
+                                <button onclick="window.startEditPlan('${pl.id}')" class="text-xs">✏️</button><button onclick="window.deletePlan('${pl.id}')" class="text-xs">🗑️</button>
                             </div>
                         </div>
                         <div class="grid grid-cols-3 gap-2 mt-2 border-t pt-2 border-gray-50">
-                            <div><div class="text-[9px] text-gray-400 uppercase">總額</div><div class="text-xs font-bold">${formatMoney(fin.budget)}</div></div>
-                            <div><div class="text-[9px] text-gray-400 uppercase">已用</div><div class="text-xs text-orange-500 font-bold">${formatMoney(fin.spent)}</div></div>
-                            <div class="border-l pl-2"><div class="text-[9px] text-gray-400 uppercase">餘額</div><div class="text-xs font-black ${fin.balance<0?'text-red-500':'text-emerald-600'}">${formatMoney(fin.balance)}</div></div>
+                            <div><div class="text-[9px] text-gray-400">總額</div><div class="text-xs font-bold">${formatMoney(f.budget)}</div></div>
+                            <div><div class="text-[9px] text-gray-400">已用</div><div class="text-xs text-orange-500 font-bold">${formatMoney(f.spent)}</div></div>
+                            <div class="border-l pl-2"><div class="text-[9px] text-gray-400">餘額</div><div class="text-xs font-black ${f.balance<0?'text-red-500':'text-emerald-600'}">${formatMoney(f.balance)}</div></div>
                         </div>
                     </div>`;
-                select.innerHTML += `<option value="${plan.id}">${plan.name} (餘: ${formatMoney(fin.balance)})</option>`;
+                select.innerHTML += `<option value="${pl.id}">${pl.name} (餘: ${formatMoney(f.balance)})</option>`;
             });
+            summary.innerHTML = `<div class="bg-slate-800 text-white rounded-lg p-4 shadow-xl"><div class="grid grid-cols-3 gap-2"><div class="text-center"><div class="text-[9px] text-slate-400">總預算</div><div class="font-bold">${formatMoney(tB)}</div></div><div class="text-center border-x border-slate-700"><div class="text-[9px] text-slate-400">總消耗</div><div class="font-bold text-orange-400">${formatMoney(tS)}</div></div><div class="text-center"><div class="text-[9px] text-slate-400">剩餘</div><div class="font-black ${tL<0?'text-red-400':'text-emerald-400'}">${formatMoney(tL)}</div></div></div></div>`;
 
-            summary.innerHTML = `<div class="bg-slate-800 text-white rounded-lg p-4 shadow-xl"><div class="grid grid-cols-3 gap-2"><div class="text-center"><div class="text-[9px] text-slate-400">總預算</div><div class="font-bold">${formatMoney(tBudget)}</div></div><div class="text-center border-x border-slate-700"><div class="text-[9px] text-slate-400">總消耗</div><div class="font-bold text-orange-400">${formatMoney(tSpent)}</div></div><div class="text-center"><div class="text-[9px] text-slate-400">剩餘</div><div class="font-black ${tBalance<0?'text-red-400':'text-emerald-400'}">${formatMoney(tBalance)}</div></div></div></div>`;
-
-            const txList = document.getElementById('transactionList');
-            txList.innerHTML = '';
-            if (project.transactions.length === 0) document.getElementById('noTransactionsMsg').classList.remove('hide');
+            const txList = document.getElementById('transactionList'); txList.innerHTML = '';
+            if(p.transactions.length===0) document.getElementById('noTransactionsMsg').classList.remove('hide');
             else {
                 document.getElementById('noTransactionsMsg').classList.add('hide');
-                [...project.transactions].reverse().forEach(tx => {
-                    const plan = project.plans.find(p => p.id === tx.planId);
-                    const isPR = tx.type === 'press_release';
-                    let info = isPR ? 
-                        `🕒 ${tx.prDate||'-'} | ${tx.prNotes||''}${tx.prLink?` | <a href="${tx.prLink}" target="_blank" class="text-blue-500 underline">連結</a>`:''}` :
-                        `🗓️ ${tx.deductionPeriod||'-'} | ${tx.deductionNotes||''}`;
+                [...p.transactions].reverse().forEach(tx => {
+                    const pl = p.plans.find(x => x.id === tx.planId); const isPR = tx.type === 'press_release';
+                    let info = isPR ? `🕒 ${tx.prDate||'-'} | ${tx.prNotes||''}` : `🗓️ ${tx.deductionPeriod||'-'} | ${tx.deductionNotes||''}`;
                     txList.innerHTML += `
                         <tr class="transition ${editingTxId===tx.id?'bg-yellow-50 border-l-4 border-yellow-400':'hover:bg-gray-50'}">
-                            <td class="px-3 py-3 text-xs font-bold text-gray-900 truncate-custom max-w-[100px]">${plan?.name||'已刪除'}</td>
+                            <td class="px-3 py-3 text-xs font-bold text-gray-900 truncate-custom max-w-[100px]">${pl?.name||'已刪除'}</td>
                             <td class="px-3 py-3"><span class="px-1.5 py-0.5 text-[9px] rounded ${isPR?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}">${isPR?'新聞':'扣款'}</span></td>
                             <td class="px-3 py-3 text-xs truncate-custom max-w-[150px] font-medium" title="${tx.description}">${tx.description}</td>
                             <td class="px-3 py-3 text-[10px] text-gray-500">${info}</td>
@@ -429,31 +320,32 @@ measurementId: "G-G4JJP7X90J"
             }
         }
 
-        // --- Excel & JSON 引擎 ---
-        window.exportSingleProjectToExcel = () => {
-            const p = appData.projects.find(x => x.id === appData.currentProjectId);
-            if (p) generateExcel([p], `${p.name}_報表`);
-        };
+        window.exportSingleProjectToExcel = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); if(p) generateExcel([p], p.name); };
         window.batchExportToExcel = () => {
-            if (selectedProjectsForExport.size === 0) return alert('請先勾選左側專案');
-            const target = appData.projects.filter(p => selectedProjectsForExport.has(p.id));
-            generateExcel(target, `合併報表_共${target.length}案`);
+            if(selectedProjectsForExport.size === 0) return alert('請勾選左側專案');
+            const targets = appData.projects.filter(p => selectedProjectsForExport.has(p.id));
+            generateExcel(targets, `合併報表`);
         };
 
         function generateExcel(projs, prefix) {
             const wb = XLSX.utils.book_new();
             const ov = [["所屬專案", "方案名稱", "採購預算", "已使用", "可用餘額", "狀態"]];
-            let sB = 0, sS = 0, sL = 0;
-            projs.forEach(p => { p.plans.forEach(pl => { const f = calculatePlanFinance(p, pl.id); sB += f.budget; sS += f.spent; sL += f.balance; ov.push([p.name, pl.name, f.budget, f.spent, f.balance, f.balance<=0?'已用完':'正常']); }); });
+            let sB=0, sS=0, sL=0;
+            projs.forEach(p => p.plans.forEach(pl => {
+                const spent = p.transactions.filter(tx => tx.planId === pl.id).reduce((s, tx) => s + Number(tx.amount || 0), 0);
+                const bal = pl.budget - spent; sB+=pl.budget; sS+=spent; sL+=bal;
+                ov.push([p.name, pl.name, pl.budget, spent, bal, bal<=0?'已用完':'正常']);
+            }));
             ov.push(["", "Total", sB, sS, sL, "未稅"]);
             const wsOv = XLSX.utils.aoa_to_sheet(ov);
-            wsOv['!cols'] = [{wch:30},{wch:25},{wch:15},{wch:15},{wch:15},{wch:10}];
             styleSheet(wsOv, true); XLSX.utils.book_append_sheet(wb, wsOv, "預算總覽");
-
-            const txD = [["所屬專案", "方案", "類型", "主題項目", "時間/走期", "金額", "備註", "連結"]];
-            projs.forEach(p => { [...p.transactions].forEach(t => { const pl = p.plans.find(x => x.id === t.planId); txD.push([p.name, pl?.name||'刪除', t.type==='press_release'?'新聞稿':'扣款', t.description, t.type==='press_release'?(t.prDate||''):(t.deductionPeriod||''), t.amount, t.type==='press_release'?(t.prNotes||''):(t.deductionNotes||''), t.prLink||'']); }); });
+            
+            const txD = [["所屬專案", "方案", "類型", "主題項目", "時間/走期", "金額", "備註"]];
+            projs.forEach(p => p.transactions.forEach(t => {
+                const pl = p.plans.find(x => x.id === t.planId);
+                txD.push([p.name, pl?.name||'刪除', t.type==='press_release'?'新聞稿':'扣款', t.description, t.type==='press_release'?(t.prDate||''):(t.deductionPeriod||''), t.amount, t.type==='press_release'?(t.prNotes||''):(t.deductionNotes||'')]);
+            }));
             const wsTx = XLSX.utils.aoa_to_sheet(txD);
-            wsTx['!cols'] = [{wch:20},{wch:20},{wch:10},{wch:30},{wch:15},{wch:12},{wch:25},{wch:30}];
             styleSheet(wsTx, false); XLSX.utils.book_append_sheet(wb, wsTx, "明細");
             XLSX.writeFile(wb, `${prefix}_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
@@ -483,7 +375,10 @@ measurementId: "G-G4JJP7X90J"
                     const d = JSON.parse(ev.target.result);
                     if(d.projects && confirm('確定覆蓋雲端舊有資料進行搬家？')) {
                         document.getElementById('loader').classList.remove('hide');
-                        appData.projects = d.projects; render(); await saveToCloud();
+                        appData.projects = d.projects;
+                        // 修正：自動選取第一個專案
+                        if(d.projects.length > 0) appData.currentProjectId = d.projects[0].id;
+                        render(); await saveToCloud();
                         document.getElementById('loader').classList.add('hide'); alert('搬家同步成功！');
                     }
                 } catch(err) { alert('匯入格式錯誤'); }
@@ -491,8 +386,6 @@ measurementId: "G-G4JJP7X90J"
             };
             r.readAsText(f);
         };
-
-        render();
     </script>
 </body>
 </html>
