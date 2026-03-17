@@ -45,8 +45,14 @@
 
     <aside class="w-72 bg-slate-800 text-white flex flex-col h-full shadow-lg z-10">
         <div class="p-4 border-b border-slate-700">
-            <div class="flex justify-between items-center mb-3"><h1 class="text-xl font-bold tracking-wider">JS 專案管理</h1><span id="roleBadge" class="text-[10px] px-2 py-1 rounded"></span></div>
-            <form id="addProjectForm" class="admin-only-flex gap-2 hidden"><input type="text" id="newProjectName" placeholder="新增客戶/專案" class="w-full px-2 py-1.5 rounded text-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500" required><button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded font-bold">+</button></form>
+            <div class="flex justify-between items-center mb-3">
+                <h1 class="text-xl font-bold tracking-wider">JS 專案管理</h1>
+                <span id="roleBadge" class="text-[10px] px-2 py-1 rounded"></span>
+            </div>
+            <form id="addProjectForm" class="admin-only-flex gap-2 hidden">
+                <input type="text" id="newProjectName" placeholder="新增客戶/專案" class="w-full px-2 py-1.5 rounded text-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500" required>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded font-bold">+</button>
+            </form>
         </div>
         <div class="flex text-sm border-b border-slate-700">
             <button id="tabActive" class="flex-1 py-2 text-center" onclick="window.switchTab('active')">執行中</button>
@@ -69,7 +75,7 @@
             <div class="text-center">
                 <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-width="2"></path></svg>
                 <p class="text-lg">請從左側選擇一個專案</p>
-                <p class="text-xs mt-2 text-gray-400 font-mono italic">Cloud Connection: ACTIVE</p>
+                <p class="text-xs mt-2 text-gray-400 font-mono italic">Firebase Real-time Cloud Sync Enabled</p>
             </div>
         </div>
 
@@ -127,6 +133,9 @@
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
+        // ==========================================
+        // ⚠️ 替換為你的專屬金鑰
+        // ==========================================
 const firebaseConfig = {
 apiKey: "AIzaSyCu3HMpPVtKaYwQ7ioVT4rTYI2hb_QddLk",
 authDomain: "[js-pr-system.firebaseapp.com](http://js-pr-system.firebaseapp.com/)",
@@ -136,6 +145,7 @@ messagingSenderId: "304843279977",
 appId: "1:304843279977:web:b6da314882257f058f1cf8",
 measurementId: "G-G4JJP7X90J"
 };
+        // ==========================================
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -147,7 +157,11 @@ measurementId: "G-G4JJP7X90J"
         let editingTxId = null; let editingPlanId = null;
         let selectedProjectsForExport = new Set(); 
 
-        // 🟢 橋接器：確保 HTML 的 onclick 能呼叫到這裡
+        // 🟢 工具函數：一定要放在這裡供全域使用
+        function formatMoney(amount) {
+            return '$' + (Number(amount) || 0).toLocaleString('en-US');
+        }
+
         window.selectProject = (id) => {
             appData.currentProjectId = id;
             window.cancelEditMode();
@@ -157,8 +171,12 @@ measurementId: "G-G4JJP7X90J"
 
         async function saveToCloud() {
             if (!currentUserEmail) return;
-            try { await setDoc(DB_DOC_REF, { projects: appData.projects }); } 
-            catch (error) { console.error(error); alert("雲端同步失敗！請檢查權限設定。"); }
+            try { 
+                await setDoc(DB_DOC_REF, { projects: appData.projects }); 
+            } catch (error) { 
+                console.error(error); 
+                alert("存檔失敗！可能是連線中斷或權限問題。"); 
+            }
         }
 
         onSnapshot(DB_DOC_REF, (snap) => {
@@ -180,25 +198,27 @@ measurementId: "G-G4JJP7X90J"
         });
 
         window.toggleLoginState = () => {
-            if (currentUserEmail) signOut(auth).then(() => alert("已登出系統。"));
+            if (currentUserEmail) signOut(auth).then(() => alert("已登出。"));
             else document.getElementById('loginModal').classList.remove('hide');
         };
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const btn = e.submitter; btn.disabled = true; btn.innerText = "驗證中...";
             signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPwd').value)
                 .then(() => { document.getElementById('loginModal').classList.add('hide'); })
-                .catch((err) => alert("登入失敗：" + err.message))
-                .finally(() => { btn.disabled = false; btn.innerText = "登入解鎖"; });
+                .catch((err) => alert("登入失敗：" + err.message));
         });
 
         window.switchTab = (tab) => { appData.currentViewTab = tab; appData.currentProjectId = null; render(); };
+        
         window.toggleTypeFields = () => {
             const type = document.getElementById('txType').value;
-            if(type==='press_release'){ document.getElementById('prFields').classList.remove('hide'); document.getElementById('deductionFields').classList.add('hide'); }
-            else { document.getElementById('prFields').classList.add('hide'); document.getElementById('deductionFields').classList.remove('hide'); }
+            const prFields = document.getElementById('prFields');
+            const deductionFields = document.getElementById('deductionFields');
+            if(type==='press_release'){ prFields.classList.remove('hide'); deductionFields.classList.add('hide'); }
+            else { prFields.classList.add('hide'); deductionFields.classList.remove('hide'); }
         };
+
         window.toggleProjectSelection = (e, id) => { e.stopPropagation(); if(e.target.checked) selectedProjectsForExport.add(id); else selectedProjectsForExport.delete(id); };
 
         document.getElementById('addProjectForm').addEventListener('submit', (e) => {
@@ -208,9 +228,9 @@ measurementId: "G-G4JJP7X90J"
             appData.currentProjectId = id; e.target.reset(); saveToCloud();
         });
 
-        window.renameProject = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const n = prompt('修改名稱：', p.name); if(n) { p.name = n; saveToCloud(); } };
+        window.renameProject = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const n = prompt('修改專案名稱：', p.name); if(n) { p.name = n; saveToCloud(); } };
         window.toggleProjectStatus = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.status = (p.status||'active')==='active'?'archived':'active'; appData.currentProjectId = null; saveToCloud(); };
-        window.deleteProject = () => { if(confirm('警告：這將永久刪除此專案與所有紀錄！')) { appData.projects = appData.projects.filter(x => x.id !== appData.currentProjectId); appData.currentProjectId = null; saveToCloud(); } };
+        window.deleteProject = () => { if(confirm('⚠️ 永久刪除此專案與所有紀錄？不可恢復！')) { appData.projects = appData.projects.filter(x => x.id !== appData.currentProjectId); appData.currentProjectId = null; saveToCloud(); } };
 
         document.getElementById('addPlanForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -233,12 +253,12 @@ measurementId: "G-G4JJP7X90J"
             saveToCloud();
         });
 
-        window.deletePlan = (id) => { if(confirm('刪除方案？相關扣款會失去對應。')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.plans = p.plans.filter(x => x.id !== id); saveToCloud(); } };
-        window.deleteTransaction = (id) => { if(confirm('確定刪除此紀錄？')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.transactions = p.transactions.filter(x => x.id !== id); saveToCloud(); } };
+        window.deletePlan = (id) => { if(confirm('刪除方案？相關扣款將失去關聯。')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.plans = p.plans.filter(x => x.id !== id); saveToCloud(); } };
+        window.deleteTransaction = (id) => { if(confirm('確定刪除此筆紀錄？')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.transactions = p.transactions.filter(x => x.id !== id); saveToCloud(); } };
         window.startEditPlan = (id) => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const pl = p.plans.find(x => x.id === id); editingPlanId = id; document.getElementById('planFormTitle').textContent = '編輯方案'; document.getElementById('planFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditPlanBtn').classList.remove('hide'); document.getElementById('planName').value = pl.name; document.getElementById('planBudget').value = pl.budget; document.getElementById('planRemark').value = pl.internalRemark || ''; };
         window.cancelEditPlanMode = () => { editingPlanId = null; document.getElementById('addPlanForm').reset(); document.getElementById('planFormTitle').textContent = '新增採購方案'; document.getElementById('planFormContainer').classList.remove('bg-yellow-50'); document.getElementById('cancelEditPlanBtn').classList.add('hide'); };
         window.startEditTransaction = (id) => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const tx = p.transactions.find(x => x.id === id); editingTxId = id; document.getElementById('txFormTitle').textContent = '編輯紀錄'; document.getElementById('txFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditBtn').classList.remove('hide'); document.getElementById('txPlanId').value = tx.planId; document.getElementById('txType').value = tx.type; document.getElementById('txDescription').value = tx.description; document.getElementById('txAmount').value = tx.amount; document.getElementById('prDate').value = tx.prDate || ''; document.getElementById('prNotes').value = tx.prNotes || ''; document.getElementById('prLink').value = tx.prLink || ''; document.getElementById('prCloud').value = tx.prCloud || ''; document.getElementById('deductionPeriod').value = tx.deductionPeriod || ''; document.getElementById('deductionNotes').value = tx.deductionNotes || ''; window.toggleTypeFields(); };
-        window.cancelEditMode = () => { editingTxId = null; document.getElementById('addTransactionForm').reset(); document.getElementById('txFormTitle').textContent = '新增執行紀錄'; document.getElementById('txFormContainer').classList.remove('bg-yellow-50'); document.getElementById('cancelEditBtn').classList.add('hide'); window.toggleTypeFields(); };
+        window.cancelEditMode = () => { editingTxId = null; document.getElementById('addTransactionForm').reset(); document.getElementById('txFormTitle').textContent = '新增紀錄'; document.getElementById('txFormContainer').classList.remove('bg-yellow-50'); document.getElementById('cancelEditBtn').classList.add('hide'); window.toggleTypeFields(); };
 
         function render() {
             const isAdmin = !!currentUserEmail;
@@ -246,10 +266,8 @@ measurementId: "G-G4JJP7X90J"
             document.getElementById('roleBadge').className = `text-[10px] px-2 py-1 rounded text-white font-bold ${isAdmin ? 'bg-yellow-500' : 'bg-slate-600'}`;
             document.getElementById('loginBtn').innerText = isAdmin ? '🔒 登出系統' : '🔑 登入編輯模式';
             document.getElementById('loginBtn').className = `w-full text-xs py-2 rounded border transition mb-2 ${isAdmin ? 'bg-red-800 text-white border-red-900' : 'bg-slate-700 text-slate-300 border-slate-600'}`;
-
             document.getElementById('tabActive').className = appData.currentViewTab === 'active' ? 'flex-1 py-2 text-center bg-slate-700 font-bold text-white' : 'flex-1 py-2 text-center text-slate-400 hover:text-white cursor-pointer';
             document.getElementById('tabArchived').className = appData.currentViewTab === 'archived' ? 'flex-1 py-2 text-center bg-slate-700 font-bold text-white' : 'flex-1 py-2 text-center text-slate-400 hover:text-white cursor-pointer';
-
             const listEl = document.getElementById('projectList'); listEl.innerHTML = '';
             const filtered = appData.projects.filter(p => (p.status || 'active') === appData.currentViewTab);
             if(filtered.length === 0) listEl.innerHTML = `<p class="text-gray-500 text-xs p-4 text-center">無專案資料</p>`;
@@ -257,11 +275,7 @@ measurementId: "G-G4JJP7X90J"
                 filtered.forEach(p => {
                     const isCur = appData.currentProjectId === p.id;
                     const isChecked = selectedProjectsForExport.has(p.id) ? 'checked' : '';
-                    listEl.innerHTML += `
-                        <div class="flex items-center px-2 py-1.5 mb-1 rounded transition ${isCur ? 'bg-blue-600' : 'hover:bg-slate-700'} cursor-pointer" onclick="window.selectProject('${p.id}')">
-                            <input type="checkbox" class="mr-2 w-4 h-4 cursor-pointer" ${isChecked} onclick="window.toggleProjectSelection(event, '${p.id}')">
-                            <span class="text-sm truncate flex-1 ${isCur ? 'text-white font-bold' : 'text-slate-300'}">${p.name}</span>
-                        </div>`;
+                    listEl.innerHTML += `<div class="flex items-center px-2 py-1.5 mb-1 rounded transition ${isCur ? 'bg-blue-600' : 'hover:bg-slate-700'} cursor-pointer" onclick="window.selectProject('${p.id}')"><input type="checkbox" class="mr-2 w-4 h-4 cursor-pointer" ${isChecked} onclick="window.toggleProjectSelection(event, '${p.id}')"><span class="text-sm truncate flex-1 ${isCur ? 'text-white font-bold' : 'text-slate-300'}">${p.name}</span></div>`;
                 });
             }
             renderDetails();
@@ -277,7 +291,6 @@ measurementId: "G-G4JJP7X90J"
             const isActive = (p.status||'active')==='active'; badge.textContent = isActive?'執行中':'已封存';
             badge.className = `px-2 py-1 text-xs rounded ${isActive?'bg-blue-100 text-blue-800':'bg-gray-200 text-gray-600'}`;
             toggle.textContent = isActive?'📦 封存專案':'🔓 解除封存';
-
             const wallets = document.getElementById('planWalletsList'); const select = document.getElementById('txPlanId'); const summary = document.getElementById('projectSummary');
             wallets.innerHTML = ''; select.innerHTML = '<option value="" disabled selected>選擇方案...</option>';
             let tB=0, tS=0, tL=0;
@@ -286,26 +299,12 @@ measurementId: "G-G4JJP7X90J"
                 const spent = p.transactions.filter(tx => tx.planId === pl.id).reduce((s, tx) => s + Number(tx.amount || 0), 0);
                 const fin = { budget: pl.budget, spent, balance: pl.budget - spent };
                 tB+=fin.budget; tS+=fin.spent; tL+=fin.balance;
-                const isEx = fin.balance<=0; const isAdmin = !!currentUserEmail;
-                const remark = (isAdmin && pl.internalRemark) ? `<div class="text-[10px] text-purple-500 mt-1 flex gap-1 items-center font-bold">🔒 ${pl.internalRemark}</div>` : '';
-                wallets.innerHTML += `
-                    <div class="border rounded-lg p-3 relative group transition ${editingPlanId===pl.id?'ring-2 ring-yellow-400 bg-yellow-50':(isEx?'bg-gray-100 opacity-80':'bg-white shadow-sm hover:shadow-md')}">
-                        <div class="flex justify-between items-start mb-1">
-                            <div class="flex-1 pr-10"><div class="font-bold truncate-custom text-sm ${isEx?'text-gray-400':'text-gray-700'}">${pl.name} ${isEx?'(完)':''}</div>${remark}</div>
-                            <div class="absolute top-2 right-2 admin-only-flex hidden gap-2 bg-white/90 p-1 rounded shadow-sm group-hover:flex">
-                                <button onclick="window.startEditPlan('${pl.id}')" class="text-xs">✏️</button><button onclick="window.deletePlan('${pl.id}')" class="text-xs">🗑️</button>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-3 gap-2 mt-2 border-t pt-2 border-gray-50">
-                            <div><div class="text-[9px] text-gray-400">總額</div><div class="text-xs font-bold">${formatMoney(fin.budget)}</div></div>
-                            <div><div class="text-[9px] text-gray-400">已用</div><div class="text-xs text-orange-500 font-bold">${formatMoney(fin.spent)}</div></div>
-                            <div class="border-l pl-2"><div class="text-[9px] text-gray-400">餘額</div><div class="text-xs font-black ${fin.balance<0?'text-red-500':'text-emerald-600'}">${formatMoney(fin.balance)}</div></div>
-                        </div>
-                    </div>`;
+                const isEx = fin.balance<=0;
+                const remark = (currentUserEmail && pl.internalRemark) ? `<div class="text-[10px] text-purple-500 mt-1 flex gap-1 items-center font-bold">🔒 ${pl.internalRemark}</div>` : '';
+                wallets.innerHTML += `<div class="border rounded-lg p-3 relative group transition ${editingPlanId===pl.id?'ring-2 ring-yellow-400 bg-yellow-50':(isEx?'bg-gray-100 opacity-80':'bg-white shadow-sm hover:shadow-md')}"><div class="flex justify-between items-start mb-1"><div class="flex-1 pr-10"><div class="font-bold truncate-custom text-sm ${isEx?'text-gray-400':'text-gray-700'}">${pl.name} ${isEx?'(完)':''}</div>${remark}</div><div class="absolute top-2 right-2 admin-only-flex hidden gap-2 bg-white/90 p-1 rounded shadow-sm group-hover:flex"><button onclick="window.startEditPlan('${pl.id}')" class="text-xs">✏️</button><button onclick="window.deletePlan('${pl.id}')" class="text-xs">🗑️</button></div></div><div class="grid grid-cols-3 gap-2 mt-2 border-t pt-2 border-gray-50"><div><div class="text-[9px] text-gray-400 uppercase">總額</div><div class="text-xs font-bold">${formatMoney(fin.budget)}</div></div><div><div class="text-[9px] text-gray-400 uppercase">已用</div><div class="text-xs text-orange-500 font-bold">${formatMoney(fin.spent)}</div></div><div class="border-l pl-2"><div class="text-[9px] text-gray-400 uppercase">餘額</div><div class="text-xs font-black ${fin.balance<0?'text-red-500':'text-emerald-600'}">${formatMoney(fin.balance)}</div></div></div></div>`;
                 select.innerHTML += `<option value="${pl.id}">${pl.name} (餘: ${formatMoney(fin.balance)})</option>`;
             });
             summary.innerHTML = `<div class="bg-slate-800 text-white rounded-lg p-4 shadow-xl"><div class="grid grid-cols-3 gap-2"><div class="text-center"><div class="text-[9px] text-slate-400">總預算</div><div class="font-bold">${formatMoney(tB)}</div></div><div class="text-center border-x border-slate-700"><div class="text-[9px] text-slate-400">總消耗</div><div class="font-bold text-orange-400">${formatMoney(tS)}</div></div><div class="text-center"><div class="text-[9px] text-slate-400">剩餘</div><div class="font-black ${tL<0?'text-red-400':'text-emerald-400'}">${formatMoney(tL)}</div></div></div></div>`;
-
             const txList = document.getElementById('transactionList'); txList.innerHTML = '';
             if(p.transactions.length===0) document.getElementById('noTransactionsMsg').classList.remove('hide');
             else {
@@ -313,27 +312,13 @@ measurementId: "G-G4JJP7X90J"
                 [...p.transactions].reverse().forEach(tx => {
                     const pl = p.plans.find(x => x.id === tx.planId); const isPR = tx.type === 'press_release';
                     let info = isPR ? `🕒 ${tx.prDate||'-'} | ${tx.prNotes||''}${tx.prLink?` | <a href="${tx.prLink}" target="_blank" class="text-blue-500 underline">連結</a>`:''}` : `🗓️ ${tx.deductionPeriod||'-'} | ${tx.deductionNotes||''}`;
-                    txList.innerHTML += `
-                        <tr class="transition ${editingTxId===tx.id?'bg-yellow-50 border-l-4 border-yellow-400':'hover:bg-gray-50'}">
-                            <td class="px-3 py-3 text-xs font-bold text-gray-900 truncate-custom max-w-[100px]">${pl?.name||'已刪除'}</td>
-                            <td class="px-3 py-3"><span class="px-1.5 py-0.5 text-[9px] rounded ${isPR?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}">${isPR?'新聞':'扣款'}</span></td>
-                            <td class="px-3 py-3 text-xs truncate-custom max-w-[150px] font-medium" title="${tx.description}">${tx.description}</td>
-                            <td class="px-3 py-3 text-[10px] text-gray-500">${info}</td>
-                            <td class="px-3 py-3 text-right text-xs font-black text-red-500">-${formatMoney(tx.amount)}</td>
-                            <td class="px-3 py-3 text-center space-x-2 admin-only-table-cell hidden">
-                                <button onclick="window.startEditTransaction('${tx.id}')" class="text-gray-400 hover:text-yellow-600">✏️</button><button onclick="window.deleteTransaction('${tx.id}')" class="text-gray-400 hover:text-red-600">🗑️</button>
-                            </td>
-                        </tr>`;
+                    txList.innerHTML += `<tr class="transition ${editingTxId===tx.id?'bg-yellow-50 border-l-4 border-yellow-400':'hover:bg-gray-50'}"><td class="px-3 py-3 text-xs font-bold text-gray-900 truncate-custom max-w-[100px]">${pl?.name||'已刪除'}</td><td class="px-3 py-3"><span class="px-1.5 py-0.5 text-[9px] rounded ${isPR?'bg-blue-100 text-blue-700':'bg-gray-100 text-gray-600'}">${isPR?'新聞':'扣款'}</span></td><td class="px-3 py-3 text-xs truncate-custom max-w-[150px] font-medium" title="${tx.description}">${tx.description}</td><td class="px-3 py-3 text-[10px] text-gray-500">${info}</td><td class="px-3 py-3 text-right text-xs font-black text-red-500">-${formatMoney(tx.amount)}</td><td class="px-3 py-3 text-center space-x-2 admin-only-table-cell hidden"><button onclick="window.startEditTransaction('${tx.id}')" class="text-gray-400 hover:text-yellow-600">✏️</button><button onclick="window.deleteTransaction('${tx.id}')" class="text-gray-400 hover:text-red-600">🗑️</button></td></tr>`;
                 });
             }
         }
 
         window.exportSingleProjectToExcel = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); if(p) generateExcel([p], p.name); };
-        window.batchExportToExcel = () => {
-            if(selectedProjectsForExport.size === 0) return alert('請先勾選左側專案');
-            const targets = appData.projects.filter(p => selectedProjectsForExport.has(p.id));
-            generateExcel(targets, `合併報表`);
-        };
+        window.batchExportToExcel = () => { if(selectedProjectsForExport.size === 0) return alert('請先勾選專案'); generateExcel(appData.projects.filter(p => selectedProjectsForExport.has(p.id)), `合併報表`); };
 
         function generateExcel(projs, prefix) {
             const wb = XLSX.utils.book_new();
@@ -347,7 +332,6 @@ measurementId: "G-G4JJP7X90J"
             ov.push(["", "Total", sB, sS, sL, "未稅"]);
             const wsOv = XLSX.utils.aoa_to_sheet(ov);
             styleSheet(wsOv, true); XLSX.utils.book_append_sheet(wb, wsOv, "預算總覽");
-            
             const txD = [["所屬專案", "方案", "類型", "主題項目", "時間/走期", "金額", "備註"]];
             projs.forEach(p => p.transactions.forEach(t => {
                 const pl = p.plans.find(x => x.id === t.planId);
@@ -381,20 +365,15 @@ measurementId: "G-G4JJP7X90J"
             const r = new FileReader(); r.onload = async (ev) => {
                 try {
                     const d = JSON.parse(ev.target.result);
-                    if(!d.projects) throw new Error("無效資料");
+                    if(!d.projects) throw new Error("無效資料格式");
                     if(confirm('警告：確定覆蓋目前的雲端帳目進行搬家？')) {
                         document.getElementById('loader').classList.remove('hide');
                         appData.projects = d.projects;
                         if(d.projects.length > 0) appData.currentProjectId = d.projects[0].id;
-                        render(); 
-                        await saveToCloud();
-                        document.getElementById('loader').classList.add('hide'); 
-                        alert('🎉 雲端資料搬家同步成功！');
+                        render(); await saveToCloud();
+                        document.getElementById('loader').classList.add('hide'); alert('搬家同步成功！');
                     }
-                } catch(err) { 
-                    document.getElementById('loader').classList.add('hide');
-                    alert('❌ 匯入失敗！請確認檔案內容正確。錯誤代碼：' + err.message); 
-                }
+                } catch(err) { document.getElementById('loader').classList.add('hide'); alert('匯入失敗！' + err.message); }
                 e.target.value = '';
             };
             r.readAsText(f);
