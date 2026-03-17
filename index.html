@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>媒體專案與新聞稿管理系統 (雲端同步版)</title>
+    <title>媒體專案與新聞稿管理系統 (雲端同步終極版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <style>
@@ -18,7 +18,7 @@
         body.is-admin .admin-only { display: block; }
         body.is-admin .admin-only-flex { display: flex; }
         body.is-admin .admin-only-table-cell { display: table-cell; }
-        #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 100; display: flex; justify-content: center; items-center; flex-direction: column; }
+        #loader { position: fixed; inset: 0; background: rgba(255,255,255,0.95); z-index: 1000; display: flex; justify-content: center; items-center; flex-direction: column; }
     </style>
 </head>
 <body class="h-screen flex overflow-hidden">
@@ -26,17 +26,18 @@
     <div id="loader">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800 mb-4"></div>
         <p class="text-slate-600 font-bold tracking-wider text-sm">雲端資料同步中...</p>
+        <button onclick="document.getElementById('loader').classList.add('hide')" class="mt-4 text-xs text-gray-400 underline">若卡住請點此強制進入</button>
     </div>
 
-    <div id="loginModal" class="hide fixed inset-0 bg-black/50 z-[110] flex items-center justify-center backdrop-blur-sm">
+    <div id="loginModal" class="hide fixed inset-0 bg-black/50 z-[1100] flex items-center justify-center backdrop-blur-sm">
         <div class="bg-white p-6 rounded-xl shadow-2xl w-96 border">
-            <h2 class="text-xl font-bold mb-4 text-slate-800 flex items-center gap-2">🔑 管理員登入</h2>
+            <h2 class="text-xl font-bold mb-4 text-slate-800">🔑 管理員登入</h2>
             <form id="loginForm" class="space-y-4">
-                <div><label class="block text-xs text-gray-500 mb-1">Email</label><input type="email" id="loginEmail" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required></div>
-                <div><label class="block text-xs text-gray-500 mb-1">密碼</label><input type="password" id="loginPwd" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required></div>
+                <input type="email" id="loginEmail" placeholder="Email" class="w-full px-3 py-2 border rounded text-sm outline-none" required>
+                <input type="password" id="loginPwd" placeholder="密碼" class="w-full px-3 py-2 border rounded text-sm outline-none" required>
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="document.getElementById('loginModal').classList.add('hide')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 py-2 rounded transition text-sm">取消</button>
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded transition font-bold text-sm">登入解鎖</button>
+                    <button type="button" onclick="document.getElementById('loginModal').classList.add('hide')" class="flex-1 bg-gray-100 py-2 rounded text-sm">取消</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold text-sm">登入</button>
                 </div>
             </form>
         </div>
@@ -44,44 +45,44 @@
 
     <aside class="w-72 bg-slate-800 text-white flex flex-col h-full shadow-lg z-10">
         <div class="p-4 border-b border-slate-700">
-            <div class="flex justify-between items-center mb-3"><h1 class="text-xl font-bold tracking-wider">JS 專案管理</h1><span id="roleBadge" class="text-[10px] px-2 py-1 bg-slate-600 rounded text-slate-300">👁️ 唯讀模式</span></div>
-            <form id="addProjectForm" class="admin-only-flex gap-2 hidden"><input type="text" id="newProjectName" placeholder="新增客戶/專案" class="w-full px-2 py-1.5 rounded text-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500" required><button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded transition font-bold">+</button></form>
+            <div class="flex justify-between items-center mb-3"><h1 class="text-xl font-bold tracking-wider">JS 專案管理</h1><span id="roleBadge" class="text-[10px] px-2 py-1 rounded"></span></div>
+            <form id="addProjectForm" class="admin-only-flex gap-2 hidden"><input type="text" id="newProjectName" placeholder="新增客戶/專案" class="w-full px-2 py-1.5 rounded text-gray-900 text-sm outline-none focus:ring-2 focus:ring-blue-500" required><button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-3 py-1.5 rounded font-bold">+</button></form>
         </div>
         <div class="flex text-sm border-b border-slate-700">
-            <button id="tabActive" class="flex-1 py-2 text-center bg-slate-700 font-bold" onclick="window.switchTab('active')">執行中</button>
-            <button id="tabArchived" class="flex-1 py-2 text-center text-slate-400 hover:text-white" onclick="window.switchTab('archived')">已封存</button>
+            <button id="tabActive" class="flex-1 py-2 text-center" onclick="window.switchTab('active')">執行中</button>
+            <button id="tabArchived" class="flex-1 py-2 text-center" onclick="window.switchTab('archived')">已封存</button>
         </div>
         <div class="flex-1 overflow-y-auto p-2" id="projectList"></div>
         <div class="p-4 border-t border-slate-700 flex flex-col gap-2 bg-slate-800/50">
-            <button onclick="window.toggleLoginState()" id="loginBtn" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs py-2 rounded border border-slate-600 transition mb-2">🔑 登入編輯模式</button>
-            <button onclick="window.batchExportToExcel()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-sm py-2 rounded shadow transition font-bold flex justify-center items-center gap-2">📊 批次匯出 Excel</button>
+            <button onclick="window.toggleLoginState()" id="loginBtn" class="w-full text-xs py-2 rounded border transition mb-2"></button>
+            <button onclick="window.batchExportToExcel()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-sm py-2 rounded shadow font-bold">📊 批次匯出 Excel</button>
             <div class="admin-only hidden border-t border-slate-600 mt-2 pt-2">
-                <button onclick="document.getElementById('importFile').click()" class="w-full text-xs bg-purple-700 hover:bg-purple-600 py-1.5 rounded transition text-white font-bold">📂 舊資料搬家 (匯入 JSON)</button>
+                <button onclick="document.getElementById('importFile').click()" class="w-full text-xs bg-purple-700 hover:bg-purple-600 py-1.5 rounded text-white font-bold">📂 資料搬家 (匯入 JSON)</button>
                 <input type="file" id="importFile" class="hide" accept=".json" onchange="window.importJSON(event)">
             </div>
-            <button onclick="window.exportJSON()" class="w-full text-[10px] bg-slate-700 hover:bg-slate-600 py-1.5 rounded transition text-slate-400 mt-1">💾 下載雲端備份</button>
+            <button onclick="window.exportJSON()" class="w-full text-[10px] text-slate-400 mt-1">💾 下載雲端備份</button>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col h-full overflow-y-auto bg-gray-50">
         <div id="noProjectSelected" class="flex-1 flex items-center justify-center text-gray-400">
             <div class="text-center">
-                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path></svg>
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke-width="2"></path></svg>
                 <p class="text-lg">請從左側選擇一個專案</p>
-                <p class="text-xs mt-2 text-gray-400 font-mono">Firebase Real-time Cloud Sync Enabled</p>
+                <p class="text-xs mt-2 text-gray-400 font-mono italic">Cloud Connection: ACTIVE</p>
             </div>
         </div>
 
         <div id="projectDetails" class="hide p-6 md:p-8 max-w-7xl mx-auto w-full">
             <header class="mb-6 flex justify-between items-start border-b pb-4">
-                <div class="flex items-center gap-3"><h2 id="displayProjectName" class="text-3xl font-bold text-gray-800">專案名稱</h2><span id="projectStatusBadge" class="px-2 py-1 text-xs rounded font-bold"></span></div>
+                <div class="flex items-center gap-3"><h2 id="displayProjectName" class="text-3xl font-bold text-gray-800"></h2><span id="projectStatusBadge" class="px-2 py-1 text-xs rounded font-bold"></span></div>
                 <div class="flex gap-2">
-                    <button onclick="window.exportSingleProjectToExcel()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded text-sm font-bold transition">匯出單案</button>
+                    <button onclick="window.exportSingleProjectToExcel()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded text-sm font-bold transition">匯出單案</button>
                     <div class="relative group admin-only hidden">
-                        <button class="bg-gray-800 text-white px-3 py-2 rounded shadow transition text-sm">⚙️ 設定</button>
+                        <button class="bg-gray-800 text-white px-3 py-2 rounded shadow text-sm">⚙️ 設定</button>
                         <div class="absolute right-0 mt-2 w-32 bg-white rounded shadow-xl hidden group-hover:block z-20 border py-1">
                             <button onclick="window.renameProject()" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">✏️ 改名</button>
-                            <button onclick="window.toggleProjectStatus()" id="toggleStatusBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">📦 封存</button>
+                            <button onclick="window.toggleProjectStatus()" id="toggleStatusBtn" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"></button>
                             <button onclick="window.deleteProject()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 border-t">🗑️ 刪除</button>
                         </div>
                     </div>
@@ -90,29 +91,29 @@
 
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 <div class="xl:col-span-1 space-y-6 flex flex-col">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 admin-only hidden" id="planFormContainer">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border admin-only hidden" id="planFormContainer">
                         <div class="flex justify-between items-center mb-3 border-l-4 border-blue-500 pl-2"><h3 id="planFormTitle" class="text-lg font-bold text-gray-700">新增採購方案</h3><button id="cancelEditPlanBtn" type="button" onclick="window.cancelEditPlanMode()" class="hide text-xs text-gray-400 underline">取消</button></div>
                         <form id="addPlanForm" class="space-y-3">
                             <input type="text" id="planName" list="planOptions" placeholder="方案名稱" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required><datalist id="planOptions"><option value="A方案 (16網)"><option value="B方案 (17網)"><option value="C方案 (19網)"><option value="D方案 (21網)"></datalist>
                             <input type="number" id="planBudget" placeholder="總預算" class="w-full px-3 py-2 border rounded text-sm outline-none focus:border-blue-500" required>
                             <input type="text" id="planRemark" placeholder="🔒 內部備註 (不匯出)" class="w-full px-3 py-2 border border-purple-200 bg-purple-50 rounded text-sm outline-none">
-                            <button id="submitPlanBtn" type="submit" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded transition font-bold">建立方案</button>
+                            <button id="submitPlanBtn" type="submit" class="w-full bg-slate-800 text-white py-2 rounded transition font-bold">建立方案</button>
                         </form>
                     </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col flex-1"><h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-emerald-500 pl-2">方案餘額總覽</h3><div id="planWalletsList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1"></div><div id="projectSummary" class="mt-4 border-t-2 border-gray-100 pt-3 hide"></div></div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border flex flex-col flex-1"><h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-emerald-500 pl-2">方案餘額總覽</h3><div id="planWalletsList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1"></div><div id="projectSummary" class="mt-4 border-t-2 border-gray-100 pt-3 hide"></div></div>
                 </div>
 
                 <div class="xl:col-span-2 space-y-6">
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 admin-only hidden" id="txFormContainer">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border admin-only hidden" id="txFormContainer">
                         <div class="flex justify-between items-center mb-3 border-l-4 border-red-500 pl-2"><h3 id="txFormTitle" class="text-lg font-bold text-gray-700">新增執行紀錄</h3><button id="cancelEditBtn" type="button" onclick="window.cancelEditMode()" class="hide text-xs text-gray-400 underline">取消</button></div>
                         <form id="addTransactionForm" class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-3 rounded border"><select id="txPlanId" class="w-full px-3 py-2 border rounded text-sm bg-white outline-none" required></select><select id="txType" class="w-full px-3 py-2 border rounded text-sm bg-white outline-none" onchange="window.toggleTypeFields()"><option value="deduction">一般扣款</option><option value="press_release">新聞稿發布</option></select><input type="text" id="txDescription" placeholder="主題或項目名稱" class="w-full px-3 py-2 border rounded text-sm outline-none" required></div>
                             <div id="deductionFields" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-orange-50 p-3 rounded border border-orange-100"><input type="text" id="deductionPeriod" placeholder="廣告走期 / 時間" class="w-full px-3 py-2 border rounded text-sm outline-none"><input type="text" id="deductionNotes" placeholder="詳細細節備註" class="w-full px-3 py-2 border rounded text-sm outline-none"></div>
                             <div id="prFields" class="hide grid grid-cols-1 md:grid-cols-2 gap-4 bg-blue-50 p-3 rounded border border-blue-100"><input type="date" id="prDate" class="w-full px-3 py-2 border rounded text-sm outline-none"><input type="text" id="prNotes" placeholder="新聞稿備註" class="w-full px-3 py-2 border rounded text-sm outline-none"><input type="url" id="prLink" placeholder="新聞連結" class="w-full px-3 py-2 border rounded text-sm md:col-span-2 outline-none"><input type="url" id="prCloud" placeholder="雲端空間" class="w-full px-3 py-2 border rounded text-sm md:col-span-2 outline-none"></div>
-                            <div class="flex items-end gap-4"><div class="w-1/3"><label class="text-[10px] text-red-500 font-bold ml-1">扣款金額</label><input type="number" id="txAmount" value="0" min="0" class="w-full px-3 py-2 border-2 border-red-200 rounded text-sm outline-none" required></div><button id="submitTxBtn" type="submit" class="w-2/3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded transition">登記並扣款</button></div>
+                            <div class="flex items-end gap-4"><div class="w-1/3"><label class="text-[10px] text-red-500 font-bold ml-1">扣款金額</label><input type="number" id="txAmount" value="0" min="0" class="w-full px-3 py-2 border-2 border-red-200 rounded text-sm outline-none" required></div><button id="submitTxBtn" type="submit" class="w-2/3 bg-red-600 text-white font-bold py-2 rounded transition">登記並扣款</button></div>
                         </form>
                     </div>
-                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border">
                         <h3 class="text-lg font-bold text-gray-700 mb-3 border-l-4 border-indigo-500 pl-2">執行帳目明細</h3>
                         <div class="overflow-x-auto max-h-[500px]"><table class="min-w-full text-sm text-left text-gray-500"><thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b sticky top-0"><tr><th class="px-3 py-3">方案</th><th class="px-3 py-3">類型</th><th class="px-3 py-3">說明</th><th class="px-3 py-3">詳細資訊</th><th class="px-3 py-3 text-right">金額</th><th class="px-3 py-3 text-center admin-only-table-cell hidden">操作</th></tr></thead><tbody id="transactionList" class="divide-y"></tbody></table><div id="noTransactionsMsg" class="text-center py-10 text-gray-400 hide">目前尚無任何紀錄</div></div>
                     </div>
@@ -126,10 +127,7 @@
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-        // ==========================================
-        // ⚠️ 替換為你的專屬金鑰
-        // ==========================================
-        const firebaseConfig = {
+const firebaseConfig = {
 apiKey: "AIzaSyCu3HMpPVtKaYwQ7ioVT4rTYI2hb_QddLk",
 authDomain: "[js-pr-system.firebaseapp.com](http://js-pr-system.firebaseapp.com/)",
 projectId: "js-pr-system",
@@ -138,7 +136,6 @@ messagingSenderId: "304843279977",
 appId: "1:304843279977:web:b6da314882257f058f1cf8",
 measurementId: "G-G4JJP7X90J"
 };
-        // ==========================================
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -150,7 +147,7 @@ measurementId: "G-G4JJP7X90J"
         let editingTxId = null; let editingPlanId = null;
         let selectedProjectsForExport = new Set(); 
 
-        // --- 修正核心：建立跨越 Module 牆壁的專案選擇函數 ---
+        // 🟢 橋接器：確保 HTML 的 onclick 能呼叫到這裡
         window.selectProject = (id) => {
             appData.currentProjectId = id;
             window.cancelEditMode();
@@ -161,32 +158,39 @@ measurementId: "G-G4JJP7X90J"
         async function saveToCloud() {
             if (!currentUserEmail) return;
             try { await setDoc(DB_DOC_REF, { projects: appData.projects }); } 
-            catch (error) { console.error(error); alert("存檔失敗！"); }
+            catch (error) { console.error(error); alert("雲端同步失敗！請檢查權限設定。"); }
         }
 
         onSnapshot(DB_DOC_REF, (snap) => {
             document.getElementById('loader').classList.add('hide');
-            if (snap.exists()) { appData.projects = snap.data().projects || []; render(); }
-            else { render(); }
-        }, () => document.getElementById('loader').classList.add('hide'));
+            if (snap.exists()) { 
+                appData.projects = snap.data().projects || []; 
+                render(); 
+            } else { render(); }
+        }, (error) => { 
+            console.error("Firebase Snapshot Error:", error);
+            document.getElementById('loader').classList.add('hide'); 
+        });
 
         onAuthStateChanged(auth, (user) => {
             currentUserEmail = user ? user.email : null;
             if (user) document.body.classList.add('is-admin');
-            else { document.body.classList.remove('is-admin'); cancelEditMode(); cancelEditPlanMode(); }
+            else document.body.classList.remove('is-admin');
             render();
         });
 
         window.toggleLoginState = () => {
-            if (currentUserEmail) signOut(auth).then(() => alert("已登出。"));
+            if (currentUserEmail) signOut(auth).then(() => alert("已登出系統。"));
             else document.getElementById('loginModal').classList.remove('hide');
         };
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
+            const btn = e.submitter; btn.disabled = true; btn.innerText = "驗證中...";
             signInWithEmailAndPassword(auth, document.getElementById('loginEmail').value, document.getElementById('loginPwd').value)
-                .then(() => document.getElementById('loginModal').classList.add('hide'))
-                .catch((err) => alert("登入失敗：" + err.message));
+                .then(() => { document.getElementById('loginModal').classList.add('hide'); })
+                .catch((err) => alert("登入失敗：" + err.message))
+                .finally(() => { btn.disabled = false; btn.innerText = "登入解鎖"; });
         });
 
         window.switchTab = (tab) => { appData.currentViewTab = tab; appData.currentProjectId = null; render(); };
@@ -201,13 +205,12 @@ measurementId: "G-G4JJP7X90J"
             e.preventDefault();
             const id = "p_" + Date.now().toString(36);
             appData.projects.push({ id, name: document.getElementById('newProjectName').value.trim(), status: 'active', plans: [], transactions: [] });
-            appData.currentProjectId = id;
-            e.target.reset(); saveToCloud();
+            appData.currentProjectId = id; e.target.reset(); saveToCloud();
         });
 
-        window.renameProject = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const n = prompt('新名稱', p.name); if(n){ p.name = n; saveToCloud(); } };
+        window.renameProject = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const n = prompt('修改名稱：', p.name); if(n) { p.name = n; saveToCloud(); } };
         window.toggleProjectStatus = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.status = (p.status||'active')==='active'?'archived':'active'; appData.currentProjectId = null; saveToCloud(); };
-        window.deleteProject = () => { if(confirm('永久刪除？')){ appData.projects = appData.projects.filter(x => x.id !== appData.currentProjectId); appData.currentProjectId = null; saveToCloud(); } };
+        window.deleteProject = () => { if(confirm('警告：這將永久刪除此專案與所有紀錄！')) { appData.projects = appData.projects.filter(x => x.id !== appData.currentProjectId); appData.currentProjectId = null; saveToCloud(); } };
 
         document.getElementById('addPlanForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -223,15 +226,15 @@ measurementId: "G-G4JJP7X90J"
             const p = appData.projects.find(x => x.id === appData.currentProjectId);
             const isPR = document.getElementById('txType').value === 'press_release';
             const data = { planId: document.getElementById('txPlanId').value, type: document.getElementById('txType').value, description: document.getElementById('txDescription').value.trim(), amount: Number(document.getElementById('txAmount').value) };
-            if(isPR) { data.prDate = document.getElementById('prDate').value; data.prNotes = document.getElementById('prNotes').value; data.prLink = document.getElementById('prLink').value; data.prCloud = document.getElementById('prCloud').value; }
-            else { data.deductionPeriod = document.getElementById('deductionPeriod').value; data.deductionNotes = document.getElementById('deductionNotes').value; }
+            if(isPR) { data.prDate = document.getElementById('prDate').value; data.prNotes = document.getElementById('prNotes').value; data.prLink = document.getElementById('prLink').value; data.prCloud = document.getElementById('prCloud').value; data.deductionPeriod = ''; data.deductionNotes = ''; }
+            else { data.deductionPeriod = document.getElementById('deductionPeriod').value; data.deductionNotes = document.getElementById('deductionNotes').value; data.prDate = ''; data.prNotes = ''; data.prLink = ''; data.prCloud = ''; }
             if(editingTxId) { const i = p.transactions.findIndex(t => t.id === editingTxId); p.transactions[i] = {...p.transactions[i], ...data}; window.cancelEditMode(); }
             else { data.id = "tx_" + Date.now().toString(36); data.createdAt = new Date().toISOString(); p.transactions.push(data); e.target.reset(); window.toggleTypeFields(); }
             saveToCloud();
         });
 
-        window.deletePlan = (id) => { if(confirm('刪除方案？')){ const p = appData.projects.find(x => x.id === appData.currentProjectId); p.plans = p.plans.filter(x => x.id !== id); saveToCloud(); } };
-        window.deleteTransaction = (id) => { if(confirm('刪除紀錄？')){ const p = appData.projects.find(x => x.id === appData.currentProjectId); p.transactions = p.transactions.filter(x => x.id !== id); saveToCloud(); } };
+        window.deletePlan = (id) => { if(confirm('刪除方案？相關扣款會失去對應。')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.plans = p.plans.filter(x => x.id !== id); saveToCloud(); } };
+        window.deleteTransaction = (id) => { if(confirm('確定刪除此紀錄？')) { const p = appData.projects.find(x => x.id === appData.currentProjectId); p.transactions = p.transactions.filter(x => x.id !== id); saveToCloud(); } };
         window.startEditPlan = (id) => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const pl = p.plans.find(x => x.id === id); editingPlanId = id; document.getElementById('planFormTitle').textContent = '編輯方案'; document.getElementById('planFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditPlanBtn').classList.remove('hide'); document.getElementById('planName').value = pl.name; document.getElementById('planBudget').value = pl.budget; document.getElementById('planRemark').value = pl.internalRemark || ''; };
         window.cancelEditPlanMode = () => { editingPlanId = null; document.getElementById('addPlanForm').reset(); document.getElementById('planFormTitle').textContent = '新增採購方案'; document.getElementById('planFormContainer').classList.remove('bg-yellow-50'); document.getElementById('cancelEditPlanBtn').classList.add('hide'); };
         window.startEditTransaction = (id) => { const p = appData.projects.find(x => x.id === appData.currentProjectId); const tx = p.transactions.find(x => x.id === id); editingTxId = id; document.getElementById('txFormTitle').textContent = '編輯紀錄'; document.getElementById('txFormContainer').classList.add('bg-yellow-50'); document.getElementById('cancelEditBtn').classList.remove('hide'); document.getElementById('txPlanId').value = tx.planId; document.getElementById('txType').value = tx.type; document.getElementById('txDescription').value = tx.description; document.getElementById('txAmount').value = tx.amount; document.getElementById('prDate').value = tx.prDate || ''; document.getElementById('prNotes').value = tx.prNotes || ''; document.getElementById('prLink').value = tx.prLink || ''; document.getElementById('prCloud').value = tx.prCloud || ''; document.getElementById('deductionPeriod').value = tx.deductionPeriod || ''; document.getElementById('deductionNotes').value = tx.deductionNotes || ''; window.toggleTypeFields(); };
@@ -239,6 +242,14 @@ measurementId: "G-G4JJP7X90J"
 
         function render() {
             const isAdmin = !!currentUserEmail;
+            document.getElementById('roleBadge').innerHTML = isAdmin ? '👑 管理員' : '👁️ 唯讀模式';
+            document.getElementById('roleBadge').className = `text-[10px] px-2 py-1 rounded text-white font-bold ${isAdmin ? 'bg-yellow-500' : 'bg-slate-600'}`;
+            document.getElementById('loginBtn').innerText = isAdmin ? '🔒 登出系統' : '🔑 登入編輯模式';
+            document.getElementById('loginBtn').className = `w-full text-xs py-2 rounded border transition mb-2 ${isAdmin ? 'bg-red-800 text-white border-red-900' : 'bg-slate-700 text-slate-300 border-slate-600'}`;
+
+            document.getElementById('tabActive').className = appData.currentViewTab === 'active' ? 'flex-1 py-2 text-center bg-slate-700 font-bold text-white' : 'flex-1 py-2 text-center text-slate-400 hover:text-white cursor-pointer';
+            document.getElementById('tabArchived').className = appData.currentViewTab === 'archived' ? 'flex-1 py-2 text-center bg-slate-700 font-bold text-white' : 'flex-1 py-2 text-center text-slate-400 hover:text-white cursor-pointer';
+
             const listEl = document.getElementById('projectList'); listEl.innerHTML = '';
             const filtered = appData.projects.filter(p => (p.status || 'active') === appData.currentViewTab);
             if(filtered.length === 0) listEl.innerHTML = `<p class="text-gray-500 text-xs p-4 text-center">無專案資料</p>`;
@@ -272,16 +283,13 @@ measurementId: "G-G4JJP7X90J"
             let tB=0, tS=0, tL=0;
             if(p.plans.length===0) summary.classList.add('hide'); else summary.classList.remove('hide');
             p.plans.forEach(pl => {
-                const f = (function(p, plId){
-                    const plan = p.plans.find(x => x.id === plId);
-                    const spent = p.transactions.filter(tx => tx.planId === plId).reduce((s, tx) => s + Number(tx.amount || 0), 0);
-                    return { budget: plan.budget, spent, balance: plan.budget - spent };
-                })(p, pl.id);
-                tB+=f.budget; tS+=f.spent; tL+=f.balance;
-                const isEx = f.balance<=0; const isAdmin = !!currentUserEmail;
-                const remark = (isAdmin && pl.internalRemark) ? `<div class="text-[10px] text-purple-500 mt-1 flex gap-1 items-center">🔒 ${pl.internalRemark}</div>` : '';
+                const spent = p.transactions.filter(tx => tx.planId === pl.id).reduce((s, tx) => s + Number(tx.amount || 0), 0);
+                const fin = { budget: pl.budget, spent, balance: pl.budget - spent };
+                tB+=fin.budget; tS+=fin.spent; tL+=fin.balance;
+                const isEx = fin.balance<=0; const isAdmin = !!currentUserEmail;
+                const remark = (isAdmin && pl.internalRemark) ? `<div class="text-[10px] text-purple-500 mt-1 flex gap-1 items-center font-bold">🔒 ${pl.internalRemark}</div>` : '';
                 wallets.innerHTML += `
-                    <div class="border rounded-lg p-3 relative group transition ${editingPlanId===pl.id?'ring-2 ring-yellow-400 bg-yellow-50':(isEx?'bg-gray-100 opacity-80':'bg-white shadow-sm')}">
+                    <div class="border rounded-lg p-3 relative group transition ${editingPlanId===pl.id?'ring-2 ring-yellow-400 bg-yellow-50':(isEx?'bg-gray-100 opacity-80':'bg-white shadow-sm hover:shadow-md')}">
                         <div class="flex justify-between items-start mb-1">
                             <div class="flex-1 pr-10"><div class="font-bold truncate-custom text-sm ${isEx?'text-gray-400':'text-gray-700'}">${pl.name} ${isEx?'(完)':''}</div>${remark}</div>
                             <div class="absolute top-2 right-2 admin-only-flex hidden gap-2 bg-white/90 p-1 rounded shadow-sm group-hover:flex">
@@ -289,12 +297,12 @@ measurementId: "G-G4JJP7X90J"
                             </div>
                         </div>
                         <div class="grid grid-cols-3 gap-2 mt-2 border-t pt-2 border-gray-50">
-                            <div><div class="text-[9px] text-gray-400">總額</div><div class="text-xs font-bold">${formatMoney(f.budget)}</div></div>
-                            <div><div class="text-[9px] text-gray-400">已用</div><div class="text-xs text-orange-500 font-bold">${formatMoney(f.spent)}</div></div>
-                            <div class="border-l pl-2"><div class="text-[9px] text-gray-400">餘額</div><div class="text-xs font-black ${f.balance<0?'text-red-500':'text-emerald-600'}">${formatMoney(f.balance)}</div></div>
+                            <div><div class="text-[9px] text-gray-400">總額</div><div class="text-xs font-bold">${formatMoney(fin.budget)}</div></div>
+                            <div><div class="text-[9px] text-gray-400">已用</div><div class="text-xs text-orange-500 font-bold">${formatMoney(fin.spent)}</div></div>
+                            <div class="border-l pl-2"><div class="text-[9px] text-gray-400">餘額</div><div class="text-xs font-black ${fin.balance<0?'text-red-500':'text-emerald-600'}">${formatMoney(fin.balance)}</div></div>
                         </div>
                     </div>`;
-                select.innerHTML += `<option value="${pl.id}">${pl.name} (餘: ${formatMoney(f.balance)})</option>`;
+                select.innerHTML += `<option value="${pl.id}">${pl.name} (餘: ${formatMoney(fin.balance)})</option>`;
             });
             summary.innerHTML = `<div class="bg-slate-800 text-white rounded-lg p-4 shadow-xl"><div class="grid grid-cols-3 gap-2"><div class="text-center"><div class="text-[9px] text-slate-400">總預算</div><div class="font-bold">${formatMoney(tB)}</div></div><div class="text-center border-x border-slate-700"><div class="text-[9px] text-slate-400">總消耗</div><div class="font-bold text-orange-400">${formatMoney(tS)}</div></div><div class="text-center"><div class="text-[9px] text-slate-400">剩餘</div><div class="font-black ${tL<0?'text-red-400':'text-emerald-400'}">${formatMoney(tL)}</div></div></div></div>`;
 
@@ -304,7 +312,7 @@ measurementId: "G-G4JJP7X90J"
                 document.getElementById('noTransactionsMsg').classList.add('hide');
                 [...p.transactions].reverse().forEach(tx => {
                     const pl = p.plans.find(x => x.id === tx.planId); const isPR = tx.type === 'press_release';
-                    let info = isPR ? `🕒 ${tx.prDate||'-'} | ${tx.prNotes||''}` : `🗓️ ${tx.deductionPeriod||'-'} | ${tx.deductionNotes||''}`;
+                    let info = isPR ? `🕒 ${tx.prDate||'-'} | ${tx.prNotes||''}${tx.prLink?` | <a href="${tx.prLink}" target="_blank" class="text-blue-500 underline">連結</a>`:''}` : `🗓️ ${tx.deductionPeriod||'-'} | ${tx.deductionNotes||''}`;
                     txList.innerHTML += `
                         <tr class="transition ${editingTxId===tx.id?'bg-yellow-50 border-l-4 border-yellow-400':'hover:bg-gray-50'}">
                             <td class="px-3 py-3 text-xs font-bold text-gray-900 truncate-custom max-w-[100px]">${pl?.name||'已刪除'}</td>
@@ -322,7 +330,7 @@ measurementId: "G-G4JJP7X90J"
 
         window.exportSingleProjectToExcel = () => { const p = appData.projects.find(x => x.id === appData.currentProjectId); if(p) generateExcel([p], p.name); };
         window.batchExportToExcel = () => {
-            if(selectedProjectsForExport.size === 0) return alert('請勾選左側專案');
+            if(selectedProjectsForExport.size === 0) return alert('請先勾選左側專案');
             const targets = appData.projects.filter(p => selectedProjectsForExport.has(p.id));
             generateExcel(targets, `合併報表`);
         };
@@ -373,15 +381,20 @@ measurementId: "G-G4JJP7X90J"
             const r = new FileReader(); r.onload = async (ev) => {
                 try {
                     const d = JSON.parse(ev.target.result);
-                    if(d.projects && confirm('確定覆蓋雲端舊有資料進行搬家？')) {
+                    if(!d.projects) throw new Error("無效資料");
+                    if(confirm('警告：確定覆蓋目前的雲端帳目進行搬家？')) {
                         document.getElementById('loader').classList.remove('hide');
                         appData.projects = d.projects;
-                        // 修正：自動選取第一個專案
                         if(d.projects.length > 0) appData.currentProjectId = d.projects[0].id;
-                        render(); await saveToCloud();
-                        document.getElementById('loader').classList.add('hide'); alert('搬家同步成功！');
+                        render(); 
+                        await saveToCloud();
+                        document.getElementById('loader').classList.add('hide'); 
+                        alert('🎉 雲端資料搬家同步成功！');
                     }
-                } catch(err) { alert('匯入格式錯誤'); }
+                } catch(err) { 
+                    document.getElementById('loader').classList.add('hide');
+                    alert('❌ 匯入失敗！請確認檔案內容正確。錯誤代碼：' + err.message); 
+                }
                 e.target.value = '';
             };
             r.readAsText(f);
